@@ -1,24 +1,19 @@
 // Ilan Mittelman - 13/3/2020
-// Ilan's Encryptor - main1.cpp
+// Ilan's Encryptor - main.cpp
 // Under the MIT licence.
 
-/*
-    destination file name as a arg.
-    if none is given then do the current way
-*/
-
 #include "functions.hpp"
-#include <iostream>
 #include <fstream>
+#include <vector>
 #include <string>
 #include <cstring> // strcmp()
-#include <vector>
+#include <cstdio> // printf()
 
-// ENTRER '-l' AS AN ARGUMENT TO LOG THE RESULTS TO THE CONSOLE TOO.
+// entrer '-l' as an argument to log the results to the console too.
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "Not enough given arguments. Try again\n";
+        printf("Not enough given arguments. Try again\n");
         return 1;
     }
 
@@ -41,61 +36,43 @@ int main(int argc, char* argv[]) {
     std::ifstream in_file; // input file
     in_file.open(argv[arguments[1]]);
     if (!in_file.is_open()) {
-        std::cout << "There was an error opening \'" << argv[arguments[1]] << "\'.\n";
+        printf("There was an error opening \'%s\'.\n", argv[arguments[1]]);
         return 1;
     }
 
     std::string line(std::istreambuf_iterator<char>{in_file}, {}); // read the entire file
     in_file.close();
 
-    int index = 0;
-    int column_nums = 0;
-    char tmp = 0;
+    int column_nums = count(line, ':'); // amount corresponding to the amount of encypted chars on the string
+    char current_char = 0;
     
-    std::vector<char> decrypted_chars {};
-
-    column_nums = count(line, ':'); // amount corresponding to the amount of encypted chars on the string
-    if (column_nums < 1) {
-        std::cout << "The " << argv[arguments[1]] << " is corrupted.\n";
-        return 1;
-    }
+    std::vector<char> decrypted_chars {}; // store here everything
 
     for (int i = 0; i < column_nums; ++i) {
 
-        index = line.find('!');
-        if (index == -1) {
-            std::cout << "ERROR. could not find the '!' character.\n";
-            break;
+        current_char = decrypt(line); // this is the most important line of the program.
+        if (current_char == -1) {
+            printf("ERROR. Could not decrypt line.\n");
+            return 1;
         }
 
-        tmp = decrypt(line, index); // this is the most important line of the program.
-        if (tmp == -1) {
-            std::cout << "ERROR. could not decrypt line.\n";
-            break;
-        }
+        decrypted_chars.push_back(current_char); // save the decrypted char to the vector.
 
         line.erase(0, line.find(':')+1);
-
-        decrypted_chars.push_back(tmp); // save the decrypted char to a vector.
     }
 
     // -- log the results --
 
     line = argv[arguments[1]]; // create the new file name
-    line.insert(0, "decrypted-");
+    line.insert(0, "decrypted-"); // ' decrypted-[FILENAME].txt '
 
-    std::ofstream out_file; // output file
-    out_file.open(line);
-    if (!out_file.is_open()) {
-        std::cout << "There was an error opening \'" << line << "\'\n";
-        return 1;
-    }
-
+    std::ofstream out_file(line); // output file
     log_to_file(out_file, decrypted_chars);
     out_file.close();
     
-    if (argc > 2 && strcmp(argv[arguments[0]], "-l") == 0)
+    if (argc > 2 && strcmp(argv[arguments[0]], "-l") == 0) {
         log_to_console(decrypted_chars);
+    }
 
     return 0;
 }

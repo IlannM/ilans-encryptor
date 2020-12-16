@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-char decrypt(const std::string &line, const int &index);
+char decrypt(const std::string &line);
 int count(const std::string &str, const char &chr);
 void log_to_file(std::ofstream &out_file, const std::vector<char> &decrypted);
 void log_to_console(const std::vector<char> &decrypted);

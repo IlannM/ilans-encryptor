@@ -7,7 +7,14 @@
 #include <fstream>
 #include <vector>
 
-char decrypt(const std::string &line, const int &index) {
+char decrypt(const std::string &line) {
+    int index = line.find('!');
+
+    if (index == -1) {
+        printf("ERROR. could not find the '!' character.\n");
+        return -1;
+    }
+
     switch (line[index+1] - '0') {
     case 0: // WORKS
         return ( std::stoi(line.substr(0, index) ) - ( (line[index+2]) - '0') );
